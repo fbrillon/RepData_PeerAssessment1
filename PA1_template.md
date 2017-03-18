@@ -164,10 +164,14 @@ The date field is now in the proper format. There are still NAs in the steps fie
 
 
 ```r
-ggplot( tidyactivity, aes( x=date, weights=steps ) ) +
-        geom_histogram( binwidth = 1 ) +
+perday <- tidyactivity %>%
+                group_by( date ) %>%
+                summarise( dailysteps=sum(steps, na.rm=TRUE) )
+
+ggplot( perday, aes(x=dailysteps) ) + 
+        geom_histogram( binwidth=1000 ) +
         xlab( "Date" ) +
-        ylab( "Total Number of Steps Taken" ) +
+        ylab( "Number of Days (Frequency)" ) +
         ggtitle( "Histogram revealed several days with missing data")
 ```
 
@@ -177,10 +181,6 @@ ggplot( tidyactivity, aes( x=date, weights=steps ) ) +
 
 
 ```r
-perday <- tidyactivity %>%
-                group_by( date ) %>%
-                summarise( dailysteps=sum(steps, na.rm=TRUE) )
-
 dailyavg <- round(mean(perday$dailysteps))
 dailymed <- round(median(perday$dailysteps))
 ```
@@ -270,30 +270,37 @@ summary(filledtidyactivity)
 ### Histogram of the total number of steps each day (missing values filled in)
 
 ```r
-ggplot( filledtidyactivity, aes( x=date, weights=steps ) ) +
-        geom_histogram( binwidth = 1 ) +
-        ggtitle( "Activity filled with means steps of all intervals")
+perdayfilled <- filledtidyactivity %>%
+                group_by( date ) %>%
+                summarise( dailysteps=sum(steps) )
+
+ggplot( perdayfilled, aes(x=dailysteps) ) + 
+        geom_histogram( binwidth=1000 ) +
+        xlab( "Date" ) +
+        ylab( "Number of days (Frequency)" ) +
+        ggtitle( "Histogram shows only 2 days now with 0-999 steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
-There are still what looks like missing data on October 2nd and November 15th, however, there is no more NAs in the data frame, so these must be zeroes or very low values.
+There are still 2 days with very low number of steps. However, per the summary, there are no more NAs in the data frame, so these must be zeroes or very low values. Let's look at them.
 
 
 ```r
-lowvalues <- tidyactivity %>%
-                dplyr::filter( date %in% ymd(c("2012-10-02","2012-11-15")) ) 
-table(lowvalues$date,lowvalues$steps)
+lowvalues <- perdayfilled %>%
+                dplyr::filter( dailysteps < 1000 ) 
+lowvalues
 ```
 
 ```
-##             
-##                0   8   9  33 117
-##   2012-10-02 286   0   1   0   1
-##   2012-11-15 286   1   0   1   0
+## # A tibble: 2 × 2
+##         date dailysteps
+##       <date>      <dbl>
+## 1 2012-10-02        126
+## 2 2012-11-15         41
 ```
 
-Hypothesis confirmed. Most data is 0 and the remaining is a low number of steps for that interval.
+Hypothesis confirmed. On October 2nd ans November 15th, there were steps taken, but very few, thus why they show on the 0-999 column in the histogram. The data is valid so we can move on to the rest of the analysis.
 
 ### Total steps per day, daily Mean and Median, with missing data filled-in
 
@@ -311,6 +318,8 @@ Inputting missing data actually raised both mean and median of daily steps to si
 
 * Daily average of steps : **10766 steps**
 * Daily median of steps  : **10762 steps**
+
+Note that if we do not round the values at each interval, the average and median become the same. Here, they vary slightly because of the round operation applied earlier.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
