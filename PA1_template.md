@@ -175,7 +175,7 @@ ggplot( perday, aes(x=dailysteps) ) +
         ggtitle( "Histogram revealed several days with missing data")
 ```
 
-![](PA1_template_files/figure-html/daily steps histogram-1.png)<!-- -->
+![](PA1_template_files/figure-html/daily-steps-histogram-1.png)<!-- -->
 
 ### Total steps per day, daily Mean and Median, ignoring missing values
 

@@ -65,7 +65,7 @@ The date field is now in the proper format. There are still NAs in the steps fie
 
 ### Histogram of number of steps taken each day (binwidth=1)
 
-```{r daily steps histogram}
+```{r daily-steps-histogram}
 perday <- tidyactivity %>%
                 group_by( date ) %>%
                 summarise( dailysteps=sum(steps, na.rm=TRUE) )
